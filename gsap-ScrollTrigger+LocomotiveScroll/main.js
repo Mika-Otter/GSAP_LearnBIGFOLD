@@ -9,8 +9,7 @@ const scroll = new (function () {
     let box2;
     let box3;
     let scrollTrigger1;
-    let scrollTrigger2;
-    let tl;
+    let tlBoxes;
     let win;
 
     //Init____________________________________________
@@ -23,22 +22,33 @@ const scroll = new (function () {
         box1 = document.querySelector("#box1");
         box2 = document.querySelector("#box2");
         box3 = document.querySelector("#box3");
-        this.setupScrollTrigger();
+        this.setupTimeLine();
+
+        window.addEventListener("load", () => {
+            this.setupScrollTrigger();
+        });
     };
 
     this.setupTimeLine = () => {
-        tl = new gsap.timeline();
+        tlBoxes = gsap.timeline();
+
+        let random = gsap.utils.random(-360, 360);
+
+        tlBoxes
+            .to(box1, { x: -100, rotation: random })
+            .to(box2, { y: 100, rotation: random })
+            .to(box3, { x: -300, y: -100, rotation: random });
     };
 
     this.setupScrollTrigger = () => {
         scrollTrigger1 = ScrollTrigger.create({
-            animation: tl,
+            animation: tlBoxes,
             trigger: "#box1",
             markers: true,
             start: "top top",
             endTrigger: "#box2",
             end: "bottom top",
-            onToggle: () => gsap.to(box3, { x: 600, rotation: 360, duration: 3 }),
+            // onToggle: () => gsap.to(box3, { x: 600, rotation: 360, duration: 3 }),
             onUpdate: (self) => {
                 console.log(
                     "progress:",
@@ -54,5 +64,3 @@ const scroll = new (function () {
 })();
 
 scroll.init();
-
-// gsap.to("#box1", { x: 300, duration: 3, markers: true });
