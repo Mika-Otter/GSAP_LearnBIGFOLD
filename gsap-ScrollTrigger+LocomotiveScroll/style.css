@@ -1,6 +1,16 @@
 body {
-    background: red;
+    background: rgb(255, 132, 132);
     margin: 0;
+}
+
+nav {
+    height: 70px;
+    width: 100%; /* Ajout de cette ligne */
+    background-color: #1d3140;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
 }
 
 #overlay {
@@ -24,6 +34,7 @@ body {
     justify-content: space-around;
     align-items: center;
     position: relative;
+    margin-top: 70px;
 }
 
 #section2 {
@@ -73,7 +84,31 @@ body {
 
 /*BOX________________________________________________________________*/
 
+#section2 {
+    display: flex;
+    flex-direction: column;
+}
+.box__ctn {
+    display: flex;
+    width: 100%;
+    height: 50%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.line {
+    width: 100%;
+    max-width: 800px;
+    height: 8px;
+    margin: 0 0 10px 0;
+    position: relative;
+
+    background-color: rgba(255, 255, 255, 1);
+}
+
 .box {
+    height: 70%;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
