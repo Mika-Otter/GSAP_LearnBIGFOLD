@@ -1,24 +1,58 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+gsap.registerPlugin(ScrollTrigger);
 
-setupCounter(document.querySelector('#counter'))
+const scroll = new (function () {
+    let sections;
+    let box1;
+    let box2;
+    let box3;
+    let scrollTrigger1;
+    let scrollTrigger2;
+    let tl;
+    let win;
+
+    //Init____________________________________________
+    this.init = () => {
+        sections = document.querySelectorAll("section");
+        win = {
+            w: window.innerWidth,
+            h: window.innerHeight,
+        };
+        box1 = document.querySelector("#box1");
+        box2 = document.querySelector("#box2");
+        box3 = document.querySelector("#box3");
+        this.setupScrollTrigger();
+    };
+
+    this.setupTimeLine = () => {
+        tl = new gsap.timeline();
+    };
+
+    this.setupScrollTrigger = () => {
+        scrollTrigger1 = ScrollTrigger.create({
+            animation: tl,
+            trigger: "#box1",
+            markers: true,
+            start: "top top",
+            endTrigger: "#box2",
+            end: "bottom top",
+            onToggle: () => gsap.to(box3, { x: 600, rotation: 360, duration: 3 }),
+            onUpdate: (self) => {
+                console.log(
+                    "progress:",
+                    self.progress.toFixed(3),
+                    "direction:",
+                    self.direction,
+                    "velocity",
+                    self.getVelocity()
+                );
+            },
+        });
+    };
+})();
+
+scroll.init();
+
+// gsap.to("#box1", { x: 300, duration: 3, markers: true });
