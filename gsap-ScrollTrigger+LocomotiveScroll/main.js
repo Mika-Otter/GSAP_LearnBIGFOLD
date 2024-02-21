@@ -14,6 +14,7 @@ const scroll = new (function () {
     let scrollTrigger1;
     let scrollTrigger2;
     let scrollTrigger3;
+    let scrollTrigger4;
     let tlBoxes;
     let tlSection;
     let tlYellowBoxes;
@@ -73,6 +74,7 @@ const scroll = new (function () {
 
     this.setupScrollTrigger = () => {
         scrollTrigger1 = ScrollTrigger.create({
+            animation: tlBoxes,
             trigger: "#box1",
             markers: true,
             toggleActions: "play pause reverse pause",
@@ -100,7 +102,12 @@ const scroll = new (function () {
             scrub: true,
             start: "top top",
             end: "+=100%",
-            onUpdate: () => tlBoxes.progress(ScrollTrigger.progress),
+        });
+        scrollTrigger4 = ScrollTrigger.create({
+            animation: tlYellowBoxes,
+            trigger: "#section2",
+            start: "top top",
+            end: "+=100%",
         });
     };
 })();
