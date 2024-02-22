@@ -3,6 +3,10 @@ body {
     margin: 0;
 }
 
+.stop {
+    overflow-x: hidden;
+}
+
 nav {
     height: 70px;
     width: 100%; /* Ajout de cette ligne */
@@ -133,6 +137,12 @@ nav {
     width: 250px;
     background: green;
     z-index: 1;
+}
+
+#box4first {
+    width: 50px;
+    height: 50px;
+    background-color: rgb(241, 84, 255);
 }
 
 #box4 {
