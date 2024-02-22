@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import Lenis from "@studio-freight/lenis";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -9,6 +10,7 @@ const scroll = new (function () {
     let section1;
     let section2;
     let section3;
+
     let box1;
     let box2;
     let box3;
@@ -17,9 +19,10 @@ const scroll = new (function () {
     let scrollTrigger3;
     let scrollTrigger4;
     let tlBoxes;
-    let tlSection;
+    let tlSection2;
     let tlYellowBoxes;
     let win;
+    let lenis;
 
     //Init____________________________________________
     this.init = () => {
@@ -35,10 +38,56 @@ const scroll = new (function () {
         section2 = document.querySelector("#section2");
         section3 = document.querySelector("#section3");
         this.setupTimeLine();
-
+        this.setUpTimelineSection2();
         window.addEventListener("load", () => {
             this.setupScrollTrigger();
         });
+
+        lenis = new Lenis();
+        lenis.on("scroll", ScrollTrigger.update);
+
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+
+        gsap.ticker.lagSmoothing(0);
+    };
+
+    this.setUpTimelineYellow = () => {
+        tlYellowBoxes = gsap
+            .timeline({
+                scrollTrigger: {
+                    trigger: "#section2",
+                    // markers: true,
+                    start: "-1px top",
+                    end: "+=100%",
+                    onEnter: () => lenis.stop(),
+                },
+
+                onComplete: () => {
+                    lenis.start();
+                },
+            })
+            .set(document.body, { overflow: "hidden" })
+            .to("#box4", { y: -200, ease: "elastic", duration: 3 }, 0)
+            .to("#box5", { y: 100, ease: "elastic", duration: 1 }, 0)
+            .to("#box6", { rotation: 720, duration: 3, ease: "power3" }, 0)
+            .from(
+                ".line-1",
+                {
+                    opacity: 1,
+                    scaleX: 0,
+                    transformOrigin: "left center",
+                    ease: "none",
+                    duration: 3,
+                    scrub: true,
+                },
+                0
+            )
+            .to(".line-1", { opacity: 1, duration: 3 }, "<")
+            .set(document.body, {
+                overflow: "auto",
+            });
     };
 
     this.setupTimeLine = () => {
@@ -50,31 +99,12 @@ const scroll = new (function () {
             .to(box1, { x: -100, rotation: random })
             .to(box2, { y: 100, rotation: random })
             .to(box3, { x: -300, y: -100, rotation: random });
+    };
 
-        tlYellowBoxes = gsap
-            .timeline({
-                scrollTrigger: {
-                    trigger: "#section2",
-                    markers: true,
-                    start: "-10px top",
-                    end: "+=100%",
-                    onEnterBack: () => tlYellowBoxes.reverse(),
-                },
-            })
-            .to("#box4", { y: -200, ease: "elastic", duration: 3 }, 0)
-            .to("#box5", { y: 100, ease: "elastic", duration: 1 }, 0)
-            .to("#box6", { rotation: 720, duration: 3, ease: "power3" }, 0)
-            .from(
-                ".line-1",
-                {
-                    scaleX: 0,
-                    transformOrigin: "left center",
-                    ease: "none",
-                    duration: 3,
-                    scrub: true,
-                },
-                0
-            );
+    this.setUpTimelineSection2 = () => {
+        tlSection2 = gsap
+            .timeline()
+            .fromTo(".testBox", { y: 0, rotation: 0 }, { y: 600, rotation: 360 });
     };
 
     this.setupScrollTrigger = () => {
@@ -97,25 +127,56 @@ const scroll = new (function () {
             snap: {
                 snapTo: (progress, self) => {
                     let panelStarts = tops.map((st) => st.start), // array of all the positions, on each scroll, start pos can be change
-                        snapScroll = gsap.utils.snap(panelStarts, self.scroll()); // find the closest one
-                    console.log("snap = " + self.scroll());
+                        snapScroll = gsap.utils.snap(panelStarts, lenis.animatedScroll); // find the closest one
+                    console.log(
+                        "snap = " + self.scroll(),
+                        "lenis scroll = " + lenis.animatedScroll
+                    );
 
                     return gsap.utils.normalize(0, ScrollTrigger.maxScroll(window), snapScroll);
                     //snap require progress value, conver top pos into normalized progress between 0 & 1
                 },
-                duration: 0.5,
+                duration: 0.4,
+                ease: "power2",
+            },
+        });
+
+        let isLoaded = false;
+        scrollTrigger2 = ScrollTrigger.create({
+            animation: tlYellowBoxes,
+            trigger: section2,
+            // markers: true,
+            start: "-50px top",
+            end: "bottom bottom",
+            onEnter: () => {
+                if (!isLoaded) {
+                    this.setUpTimelineYellow();
+                    isLoaded = true;
+                } else tlYellowBoxes.restart();
             },
         });
 
         scrollTrigger1 = ScrollTrigger.create({
             animation: tlBoxes,
             trigger: "#box1",
-            markers: true,
-            toggleActions: "play pause reverse pause",
+            // markers: true,
             start: "top top",
-            endTrigger: "#box2",
             end: "bottom top",
+
             // onToggle: () => gsap.to(box3, { x: 600, rotation: 360, duration: 3 }),
+        });
+
+        scrollTrigger4 = ScrollTrigger.create({
+            animation: tlSection2,
+            trigger: ".testBox",
+            onEnter: () => {
+                console.log("heeeeello");
+            },
+            markers: true,
+            pin: true,
+            scrub: 1,
+            start: "top 100px",
+            end: "+=1500 bottom",
         });
     };
 })();
