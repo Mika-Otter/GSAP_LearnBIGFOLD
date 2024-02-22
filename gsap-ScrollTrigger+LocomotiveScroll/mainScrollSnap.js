@@ -5,6 +5,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const scroll = new (function () {
     let sections;
+    let tops;
     let section1;
     let section2;
     let section3;
@@ -50,12 +51,16 @@ const scroll = new (function () {
             .to(box2, { y: 100, rotation: random })
             .to(box3, { x: -300, y: -100, rotation: random });
 
-        tlSection = gsap.timeline();
-
-        tlSection.to(section1, { y: "70px" }).to(section2, { yPercent: -200 });
-
-        tlYellowBoxes = gsap.timeline();
-        tlYellowBoxes
+        tlYellowBoxes = gsap
+            .timeline({
+                scrollTrigger: {
+                    trigger: "#section2",
+                    markers: true,
+                    start: "-10px top",
+                    end: "+=100%",
+                    onEnterBack: () => tlYellowBoxes.reverse(),
+                },
+            })
             .to("#box4", { y: -200, ease: "elastic", duration: 3 }, 0)
             .to("#box5", { y: 100, ease: "elastic", duration: 1 }, 0)
             .to("#box6", { rotation: 720, duration: 3, ease: "power3" }, 0)
@@ -73,6 +78,35 @@ const scroll = new (function () {
     };
 
     this.setupScrollTrigger = () => {
+        let sectionsArray = gsap.utils.toArray(sections);
+
+        tops = sectionsArray.map((section) =>
+            ScrollTrigger.create({ trigger: section, start: "top top" })
+        );
+
+        sectionsArray.forEach((section, i) => {
+            ScrollTrigger.create({
+                trigger: section,
+                start: () => (section.offsetHeight < win.w ? "top top" : "bottom bottom"),
+                pin: true,
+                pinSpacing: false,
+            });
+        });
+
+        scrollTrigger3 = ScrollTrigger.create({
+            snap: {
+                snapTo: (progress, self) => {
+                    let panelStarts = tops.map((st) => st.start), // array of all the positions, on each scroll, start pos can be change
+                        snapScroll = gsap.utils.snap(panelStarts, self.scroll()); // find the closest one
+                    console.log("snap = " + self.scroll());
+
+                    return gsap.utils.normalize(0, ScrollTrigger.maxScroll(window), snapScroll);
+                    //snap require progress value, conver top pos into normalized progress between 0 & 1
+                },
+                duration: 0.5,
+            },
+        });
+
         scrollTrigger1 = ScrollTrigger.create({
             animation: tlBoxes,
             trigger: "#box1",
@@ -82,32 +116,6 @@ const scroll = new (function () {
             endTrigger: "#box2",
             end: "bottom top",
             // onToggle: () => gsap.to(box3, { x: 600, rotation: 360, duration: 3 }),
-        });
-        scrollTrigger2 = ScrollTrigger.create({
-            animation: tlSection,
-            trigger: sections,
-            markers: true,
-            pin: true,
-            anticipatePin: 1,
-            pinSpacing: false,
-            start: "top top",
-            end: "+=4000",
-            scrub: true,
-        });
-
-        scrollTrigger3 = ScrollTrigger.create({
-            trigger: "#section2",
-            markers: true,
-            pin: true,
-            scrub: true,
-            start: "top top",
-            end: "+=100%",
-        });
-        scrollTrigger4 = ScrollTrigger.create({
-            animation: tlYellowBoxes,
-            trigger: "#section2",
-            start: "top top",
-            end: "+=100%",
         });
     };
 })();
