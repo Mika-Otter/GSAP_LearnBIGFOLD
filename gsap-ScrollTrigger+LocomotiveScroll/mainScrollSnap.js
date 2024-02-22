@@ -11,6 +11,8 @@ const scroll = new (function () {
     let section2;
     let section3;
 
+    let canSnap;
+
     let box1;
     let box2;
     let box3;
@@ -18,6 +20,7 @@ const scroll = new (function () {
     let scrollTrigger2;
     let scrollTrigger3;
     let scrollTrigger4;
+    let scrollTrigger5;
     let tlBoxes;
     let tlSection2;
     let tlYellowBoxes;
@@ -26,6 +29,7 @@ const scroll = new (function () {
 
     //Init____________________________________________
     this.init = () => {
+        canSnap = true;
         sections = document.querySelectorAll("section");
         win = {
             w: window.innerWidth,
@@ -54,6 +58,7 @@ const scroll = new (function () {
     };
 
     this.setUpTimelineYellow = () => {
+        let box6 = document.querySelector("#box6");
         tlYellowBoxes = gsap
             .timeline({
                 scrollTrigger: {
@@ -62,10 +67,12 @@ const scroll = new (function () {
                     start: "-1px top",
                     end: "+=100%",
                     onEnter: () => lenis.stop(),
+                    onEnterBack: () => tlYellowBoxes.restart(),
                 },
 
                 onComplete: () => {
                     lenis.start();
+                    box6.style.display = box6.style.display === "none" ? "initial" : "none";
                 },
             })
             .set(document.body, { overflow: "hidden" })
@@ -85,6 +92,7 @@ const scroll = new (function () {
                 0
             )
             .to(".line-1", { opacity: 1, duration: 3 }, "<")
+            .to(".line-1", { duration: 3 })
             .set(document.body, {
                 overflow: "auto",
             });
@@ -117,7 +125,7 @@ const scroll = new (function () {
         sectionsArray.forEach((section, i) => {
             ScrollTrigger.create({
                 trigger: section,
-                start: () => (section.offsetHeight < win.w ? "top top" : "bottom bottom"),
+                start: () => (section.offsetHeight < win.h ? "top top" : "bottom bottom"),
                 pin: true,
                 pinSpacing: false,
             });
@@ -126,14 +134,13 @@ const scroll = new (function () {
         scrollTrigger3 = ScrollTrigger.create({
             snap: {
                 snapTo: (progress, self) => {
-                    let panelStarts = tops.map((st) => st.start), // array of all the positions, on each scroll, start pos can be change
-                        snapScroll = gsap.utils.snap(panelStarts, lenis.animatedScroll); // find the closest one
-                    console.log(
-                        "snap = " + self.scroll(),
-                        "lenis scroll = " + lenis.animatedScroll
-                    );
+                    if (canSnap) {
+                        let panelStarts = tops.map((st) => st.start), // array of all the positions, on each scroll, start pos can be change
+                            snapScroll = gsap.utils.snap(panelStarts, lenis.animatedScroll); // find the closest one
+                        console.log(panelStarts);
 
-                    return gsap.utils.normalize(0, ScrollTrigger.maxScroll(window), snapScroll);
+                        return gsap.utils.normalize(0, ScrollTrigger.maxScroll(window), snapScroll);
+                    }
                     //snap require progress value, conver top pos into normalized progress between 0 & 1
                 },
                 duration: 0.4,
@@ -162,21 +169,26 @@ const scroll = new (function () {
             // markers: true,
             start: "top top",
             end: "bottom top",
-
-            // onToggle: () => gsap.to(box3, { x: 600, rotation: 360, duration: 3 }),
         });
 
         scrollTrigger4 = ScrollTrigger.create({
             animation: tlSection2,
             trigger: ".testBox",
             onEnter: () => {
-                console.log("heeeeello");
+                canSnap = false;
             },
-            markers: true,
+            // markers: true,
             pin: true,
             scrub: 1,
             start: "top 100px",
             end: "+=1500 bottom",
+        });
+
+        scrollTrigger5 = ScrollTrigger.create({
+            trigger: ".s3__p2",
+            start: "top top",
+            markers: true,
+            onEnter: () => (canSnap = true),
         });
     };
 })();
